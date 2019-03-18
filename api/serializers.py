@@ -7,7 +7,7 @@ class CDTSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CDT
-        fields = ('plazoMinDias', 'tasa', 'montoMinimo', 'banco')
+        fields = ('id', 'plazoMinDias', 'tasa', 'montoMinimo', 'banco')
 
     def create(self, validated_data):
         banco = validated_data.get('banco')
@@ -20,10 +20,6 @@ class CDTSerializer(serializers.ModelSerializer):
                                  productoBancario=producto)
         return cdt
 
-    def get_banco(self, cdt):
-        producto = cdt.productoBancario
-        banco = producto.banco
-        return banco.nombre
 
 class CalificacionBancoSerializer(serializers.ModelSerializer):
     fecha = serializers.ReadOnlyField()
