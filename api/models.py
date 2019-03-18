@@ -35,3 +35,9 @@ class CalificacionProducto(models.Model):
     puntaje = models.IntegerField(validators=(MinValueValidator(0), MaxValueValidator(5)))
     reseña = models.CharField(max_length=1000)
     fecha = models.DateField(auto_now_add=True)
+
+class DatosRegistro(models.Model):
+    email = models.EmailField(primary_key=True)
+    nombre = models.CharField(max_length=50)
+    acepta = models.BooleanField()
+    telefono = models.CharField(max_length=15, null=True)

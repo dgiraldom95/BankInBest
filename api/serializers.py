@@ -39,3 +39,9 @@ class CalificacionProductoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CalificacionProducto
         fields = '__all__'
+
+
+class DatosRegistroSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DatosRegistro
+        fields = '__all__'

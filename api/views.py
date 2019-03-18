@@ -24,3 +24,9 @@ class CalificacionProductoViewSet(viewsets.ModelViewSet):
     queryset = CalificacionProducto.objects.all()
     serializer_class = CalificacionProductoSerializer
     permission_classes = (permissions.AllowAny,)
+
+
+class DatosRegistroViewSet(viewsets.ModelViewSet):
+    queryset = DatosRegistro.objects.all()
+    serializer_class = DatosRegistroSerializer
+    permission_classes = (permissions.AllowAny,)
