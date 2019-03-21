@@ -41,3 +41,4 @@ class DatosRegistro(models.Model):
     nombre = models.CharField(max_length=50)
     acepta = models.BooleanField()
     telefono = models.CharField(max_length=15, null=True)
+    slug_name = models.SlugField(unique=True, max_length=50)
