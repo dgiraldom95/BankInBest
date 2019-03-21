@@ -24,4 +24,3 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(create_slug, reverse_code=migrations.RunPython.noop)
     ]
-

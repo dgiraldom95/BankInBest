@@ -44,7 +44,12 @@ class DatosRegistroSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('slug_name',)
 
+    def emailToSlug(self, email):
+        slug = email.replace('.', '%1%')
+        slug = slug.replace('@', '%2%')
+        return slug
+
     def to_internal_value(self, data):
         ret = super(DatosRegistroSerializer, self).to_internal_value(data)
-        ret['slug_name'] = slugify(ret['email'])
+        ret['slug_name'] = self.emailToSlug(ret['email'])
         return ret
