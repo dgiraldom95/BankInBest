@@ -1,3 +1,4 @@
+from django.utils.text import slugify
 from rest_framework import serializers
 from api.models import *
 
@@ -41,3 +42,9 @@ class DatosRegistroSerializer(serializers.ModelSerializer):
     class Meta:
         model = DatosRegistro
         fields = '__all__'
+        read_only_fields = ('slug_name',)
+
+    def to_internal_value(self, data):
+        ret = super(DatosRegistroSerializer, self).to_internal_value(data)
+        ret['slug_name'] = slugify(ret['email'])
+        return ret

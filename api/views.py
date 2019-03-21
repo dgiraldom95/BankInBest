@@ -45,3 +45,4 @@ class DatosRegistroViewSet(viewsets.ModelViewSet):
     queryset = DatosRegistro.objects.all()
     serializer_class = DatosRegistroSerializer
     permission_classes = (permissions.AllowAny,)
+    lookup_field = 'slug_name'
