@@ -46,3 +46,12 @@ class DatosRegistroViewSet(viewsets.ModelViewSet):
     serializer_class = DatosRegistroSerializer
     permission_classes = (permissions.AllowAny,)
     lookup_field = 'slug_name'
+
+    @action(detail=True)
+    def existe(self, request, slug_name=None):
+        response_data = {}
+        if DatosRegistro.objects.filter(slug_name=slug_name).exists():
+            response_data['existe'] = 'SI'
+        else:
+            response_data['existe'] = 'NO'
+        return Response(response_data)
