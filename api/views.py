@@ -29,6 +29,13 @@ class CDTViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class BancoViewSet(viewsets.ModelViewSet):
+    queryset = Banco.objects.all()
+    serializer_class = BancoSerializer
+    permission_classes = (permissions.AllowAny,)
+    lookup_field = 'slug'
+
+
 class CalificacionBancoViewSet(viewsets.ModelViewSet):
     queryset = CalificacionBanco.objects.all()
     serializer_class = CalificacionBancoSerializer

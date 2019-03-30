@@ -87,7 +87,7 @@ DATABASES = {
         'NAME': 'bankinbest_db',
         'USER': 'au401',
         'PASSWORD': 'au401',
-        'HOST': '35.183.45.71',
+        'HOST': '157.230.14.37',
         'PORT': ''
     }
 }

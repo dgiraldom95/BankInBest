@@ -1,6 +1,24 @@
 from django.utils.text import slugify
 from rest_framework import serializers
 from api.models import *
+import unidecode
+
+
+class BancoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Banco
+        fields = '__all__'
+        read_only_fields = ('slug',)
+
+    def nameToSlug(self, name):
+        slug = name.replace(' ', '-')
+        slug = unidecode.unidecode(slug)
+        return slug
+
+    def to_internal_value(self, data):
+        ret = super(BancoSerializer, self).to_internal_value(data)
+        ret['slug'] = self.nameToSlug(ret['nombre'])
+        return ret
 
 
 class CDTSerializer(serializers.ModelSerializer):

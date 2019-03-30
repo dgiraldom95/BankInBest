@@ -7,6 +7,7 @@ router.register(r'CDTs', views.CDTViewSet)
 router.register(r'calificaciones-productos', views.CalificacionProductoViewSet)
 router.register(r'calificaciones-bancos', views.CalificacionBancoViewSet)
 router.register(r'datos-registro', views.DatosRegistroViewSet)
+router.register(r'bancos', views.BancoViewSet)
 
 urlpatterns = [
     path('', include(router.urls))

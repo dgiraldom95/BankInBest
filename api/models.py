@@ -13,28 +13,34 @@ class CDT(models.Model):
     productoBancario = models.OneToOneField('ProductoBancario', on_delete=models.CASCADE)
     plazoMinDias = models.IntegerField()
     tasa = models.FloatField()
-    montoMinimo = models.IntegerField()
+    monto = models.IntegerField(null=True)
+    montoMinimo = models.IntegerField(null=True)
 
     @property
     def banco(self):
         return self.productoBancario.banco_id
 
+
 class Banco(models.Model):
     nombre = models.CharField(max_length=50, primary_key=True)
+    logoCuadrado = models.URLField(null=True)
+    logoGrande = models.URLField(null=True)
+    slug = models.SlugField(default=nombre)
 
 
 class CalificacionBanco(models.Model):
     banco = models.ForeignKey('Banco', on_delete=models.CASCADE)
     puntaje = models.IntegerField(validators=(MinValueValidator(0), MaxValueValidator(5)))
-    reseña = models.CharField(max_length=1000)
+    comentario = models.CharField(max_length=1000)
     fecha = models.DateField(auto_now_add=True)
 
 
 class CalificacionProducto(models.Model):
     producto = models.ForeignKey('ProductoBancario', on_delete=models.CASCADE)
     puntaje = models.IntegerField(validators=(MinValueValidator(0), MaxValueValidator(5)))
-    reseña = models.CharField(max_length=1000)
+    comentario = models.CharField(max_length=1000)
     fecha = models.DateField(auto_now_add=True)
+
 
 class DatosRegistro(models.Model):
     email = models.EmailField(primary_key=True)
