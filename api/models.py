@@ -1,7 +1,7 @@
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 import datetime
-
 
 # Create your models here.
 from django.db.models import F
@@ -52,7 +52,7 @@ class Banco(models.Model):
     @property
     def calificacion_promedio(self):
         if self.numero_calificaciones > 0:
-            return self.puntaje_total/self.numero_calificaciones
+            return self.puntaje_total / self.numero_calificaciones
         else:
             return 0
 
@@ -83,8 +83,78 @@ class CalificacionProducto(models.Model):
 
 
 class DatosRegistro(models.Model):
-    email = models.EmailField(primary_key=True)
+    email = models.EmailField(unique=True)
     nombre = models.CharField(max_length=50)
     acepta = models.BooleanField()
     telefono = models.CharField(max_length=15, null=True)
     slug_name = models.SlugField(unique=True, max_length=100)
+
+
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def create_user(self, email, password, **kwargs):
+        nombre = None
+        apellido = None
+        telefono = None
+        fecha_nacimiento = None
+        ciudad = None
+
+        if 'nombre' in kwargs:
+            nombre = kwargs['nombre']
+        if 'apellido' in kwargs:
+            apellido = kwargs['apellido']
+        if 'telefono' in kwargs:
+            telefono = kwargs['telefono']
+        if 'fecha_nacimiento' in kwargs:
+            fecha_nacimiento = kwargs['fecha_nacimiento']
+        if 'ciudad' in kwargs:
+            ciudad = kwargs['ciudad']
+
+        user = self.model(
+            email=self.normalize_email(email),
+            nombre=nombre,
+            apellido=apellido,
+            telefono=telefono,
+            fecha_nacimiento=fecha_nacimiento,
+            ciudad=ciudad,
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_staffuser(self, email, password):
+        user = self.create_user(
+            email,
+            password=password,
+        )
+        user.staff = True
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password):
+        user = self.create_user(
+            email,
+            password=password,
+        )
+        user.staff = True
+        user.admin = True
+        user.save(using=self._db)
+        return user
+
+
+class User(AbstractBaseUser):
+    username = None
+    email = models.EmailField(unique=True, primary_key=True)
+    nombre = models.CharField(max_length=50, null=True)
+    apellido = models.CharField(max_length=50, null=True)
+    telefono = models.CharField(max_length=20, null=True)
+    fecha_nacimiento = models.DateField(null=True)
+    ciudad = models.CharField(max_length=50, null=True)
+
+    USERNAME_FIELD = 'email'
+
+    def __str__(self):
+        return self.email
+
+    objects = UserManager()
