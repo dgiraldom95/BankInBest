@@ -5,6 +5,8 @@ from api.serializers import *
 from api.models import *
 from rest_framework.decorators import action
 import datetime
+from django.db.models import prefetch_related_objects
+
 
 class CDTViewSet(viewsets.ModelViewSet):
     queryset = CDT.objects.order_by('-tasa')
@@ -14,22 +16,45 @@ class CDTViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-
-        sql = "SELECT * from api_cdt"
-        query = CDT.objects.raw('Select')
-
         params = self.request.query_params
-        if 'monto' in params:
-            monto = params['monto']
-            queryset.exclude(montoMinimo__gt=monto)
 
+        monto = params['monto']
+        plazo = params['plazo']
+        fecha = datetime.datetime.today().strftime('%Y-%m-%d')
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+        sql = """ SELECT api_cdt.id, api_cdt.plazo_min_dias, api_cdt.tasa, api_cdt.monto, api_cdt.monto_minimo, api_cdt.producto_bancario_id
+                    FROM api_cdt,  
+                            api_productobancario productobancario,
+                            (SELECT prod.banco_id banco, max(cdt.tasa) tasa
+                                FROM api_cdt cdt,
+                                    api_productobancario prod
+                                WHERE (
+                                 (cdt.monto_minimo <= %s OR cdt.monto_minimo IS NULL)
+                                   AND (cdt.monto <= %s OR monto IS NULL)
+                                   AND (cdt.producto_bancario_id = prod.id)
+                                   AND (cdt.plazo_min_dias <= %s)
+                                   AND (prod.fecha = %s)
+                                    )
+                                GROUP BY prod.banco_id
+                            ) maxTasa
+                    WHERE api_cdt.tasa = maxTasa.tasa
+                       AND api_cdt.producto_bancario_id = productobancario.id
+                       AND productobancario.banco_id = maxTasa.banco
+                    ORDER BY api_cdt.tasa DESC;
+             """
 
-        serializer = self.get_serializer(queryset, many=True)
+        query = CDT.objects.raw(sql, params=[monto, monto, plazo, fecha])
+        prefetch_related_objects(query, 'producto_bancario')
+        prefetch_related_objects(query, 'producto_bancario__banco')
+
+        dicNoRepetir = {}
+        listaFinal = []
+        for cdt in query:
+            if cdt.banco not in dicNoRepetir:
+                dicNoRepetir[cdt.banco] = True
+                listaFinal.append(cdt)
+
+        serializer = self.get_serializer(listaFinal, many=True)
         return Response(serializer.data)
 
     @action(detail=True)

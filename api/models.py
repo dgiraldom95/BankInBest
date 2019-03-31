@@ -35,6 +35,9 @@ class CDT(models.Model):
     def banco(self):
         return self.producto_bancario.banco_id
 
+    def __str__(self):
+        return "%s: p%d -> t%.2f" % (self.banco, self.plazo_min_dias, self.tasa)
+
 
 class Banco(models.Model):
     nombre = models.CharField(max_length=50, primary_key=True)

@@ -21,12 +21,21 @@ class BancoSerializer(serializers.ModelSerializer):
         return ret
 
 
+class ProductoBancarioSerializer(serializers.ModelSerializer):
+    banco = BancoSerializer(read_only=True)
+
+    class Meta:
+        model = ProductoBancario
+        fields = ('id', 'banco',)
+
+
 class CDTSerializer(serializers.ModelSerializer):
     banco = serializers.CharField()
+    producto_bancario = ProductoBancarioSerializer(read_only=True)
 
     class Meta:
         model = CDT
-        fields = ('id', 'plazo_min_dias', 'tasa', 'monto_minimo', 'banco')
+        fields = ('id', 'plazo_min_dias', 'tasa', 'monto_minimo', 'banco', 'producto_bancario')
 
     def create(self, validated_data):
         banco = validated_data.get('banco')
