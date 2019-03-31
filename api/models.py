@@ -51,7 +51,10 @@ class Banco(models.Model):
 
     @property
     def calificacion_promedio(self):
-        return self.puntaje_total/self.numero_calificaciones
+        if self.numero_calificaciones > 0:
+            return self.puntaje_total/self.numero_calificaciones
+        else:
+            return 0
 
 
 class CalificacionBanco(models.Model):
