@@ -91,6 +91,26 @@ class BancoViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.AllowAny,)
     lookup_field = 'slug'
 
+    @action(detail=True)
+    def calificaciones(self, request, slug=None):
+        calificaciones = CalificacionBanco.objects.filter(banco__slug=slug)
+
+        page = self.paginate_queryset(calificaciones)
+        if page is not None:
+            serializer = CalificacionBancoSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = CalificacionBancoSerializer(calificaciones, many=True)
+        return Response(serializer.data)
+
+    @calificaciones.mapping.post
+    def postCalificaciones(self, request, slug=None):
+        serializer = CalificacionBancoSerializer(data=request.data)
+        if serializer.is_valid():
+            calificacion = serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CalificacionBancoViewSet(viewsets.ModelViewSet):
     queryset = CalificacionBanco.objects.all()
