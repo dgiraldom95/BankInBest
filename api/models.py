@@ -4,6 +4,8 @@ import datetime
 
 
 # Create your models here.
+from django.db.models import F
+
 
 class ProductoBancario(models.Model):
     banco = models.ForeignKey('Banco', on_delete=models.CASCADE)
@@ -44,6 +46,12 @@ class Banco(models.Model):
     logoCuadrado = models.URLField(null=True)
     logoGrande = models.URLField(null=True)
     slug = models.SlugField(default=nombre)
+    puntaje_total = models.FloatField(default=0)
+    numero_calificaciones = models.BigIntegerField(default=0)
+
+    @property
+    def calificacion_promedio(self):
+        return self.puntaje_total/self.numero_calificaciones
 
 
 class CalificacionBanco(models.Model):
@@ -51,6 +59,17 @@ class CalificacionBanco(models.Model):
     puntaje = models.IntegerField(validators=(MinValueValidator(0), MaxValueValidator(5)))
     comentario = models.CharField(max_length=1000)
     fecha = models.DateField(auto_now_add=True)
+
+    class CalificacionBancoManager(models.Manager):
+        def create(self, **kwargs):
+            calificacion = super(CalificacionBanco.CalificacionBancoManager, self).create(**kwargs)
+            banco = calificacion.banco
+            banco.numero_calificaciones = F('numero_calificaciones') + 1
+            banco.puntaje_total = F('puntaje_total') + calificacion.puntaje
+            banco.save()
+            return calificacion
+
+    objects = CalificacionBancoManager()
 
 
 class CalificacionProducto(models.Model):

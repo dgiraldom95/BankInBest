@@ -5,9 +5,11 @@ import unidecode
 
 
 class BancoSerializer(serializers.ModelSerializer):
+    calificacion_promedio = serializers.ReadOnlyField()
+
     class Meta:
         model = Banco
-        fields = '__all__'
+        fields = ('nombre', 'calificacion_promedio', 'slug', 'logoCuadrado', 'logoGrande')
         read_only_fields = ('slug',)
 
     def nameToSlug(self, name):
