@@ -4,12 +4,33 @@ from rest_framework.response import Response
 from api.serializers import *
 from api.models import *
 from rest_framework.decorators import action
-
+import datetime
 
 class CDTViewSet(viewsets.ModelViewSet):
-    queryset = CDT.objects.all()
+    queryset = CDT.objects.order_by('-tasa')
+    queryset = queryset.filter()
     serializer_class = CDTSerializer
     permission_classes = (permissions.AllowAny,)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        sql = "SELECT * from api_cdt"
+        query = CDT.objects.raw('Select')
+
+        params = self.request.query_params
+        if 'monto' in params:
+            monto = params['monto']
+            queryset.exclude(montoMinimo__gt=monto)
+
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     @action(detail=True)
     def calificaciones(self, request, pk=None):
