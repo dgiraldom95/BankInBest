@@ -112,6 +112,7 @@ class BancoViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class CalificacionBancoViewSet(viewsets.ModelViewSet):
     queryset = CalificacionBanco.objects.all()
     serializer_class = CalificacionBancoSerializer
@@ -138,3 +139,10 @@ class DatosRegistroViewSet(viewsets.ModelViewSet):
         else:
             response_data['existe'] = 'NO'
         return Response(response_data)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = (permissions.AllowAny,)
+
