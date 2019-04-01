@@ -58,6 +58,11 @@ class CalificacionBancoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CalificacionBanco
         fields = '__all__'
+        read_only_fields = ('banco', 'usuario')
+
+    def create(self, validated_data):
+        data = {**self.context, **validated_data}
+        return CalificacionBanco.objects.create(**data)
 
 
 class CalificacionProductoSerializer(serializers.ModelSerializer):

@@ -46,7 +46,7 @@ class Banco(models.Model):
     nombre = models.CharField(max_length=50, primary_key=True)
     logoCuadrado = models.URLField(null=True)
     logoGrande = models.URLField(null=True)
-    slug = models.SlugField(default=nombre)
+    slug = models.SlugField(default=nombre, unique=True)
     puntaje_total = models.FloatField(default=0)
     numero_calificaciones = models.BigIntegerField(default=0)
 
@@ -63,6 +63,7 @@ class CalificacionBanco(models.Model):
     puntaje = models.IntegerField(validators=(MinValueValidator(0), MaxValueValidator(5)))
     comentario = models.CharField(max_length=1000)
     fecha = models.DateField(auto_now_add=True)
+    usuario = models.ForeignKey('User', on_delete=models.SET_NULL, null=True)
 
     class CalificacionBancoManager(models.Manager):
         def create(self, **kwargs):

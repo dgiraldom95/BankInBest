@@ -21,3 +21,4 @@ class UsernamePermission(permissions.BasePermission):
             return request.user.is_admin
         else:
             return False
+

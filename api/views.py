@@ -106,12 +106,23 @@ class BancoViewSet(viewsets.ModelViewSet):
 
     @calificaciones.mapping.post
     def postCalificaciones(self, request, slug=None):
-        serializer = CalificacionBancoSerializer(data=request.data)
-        if serializer.is_valid():
-            calificacion = serializer.save()
-            return Response(serializer.data)
+
+        if not request.user.is_authenticated:
+            return Response("Authentication Credentials were not provided.", status.HTTP_401_UNAUTHORIZED)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            banco = Banco.objects.get(slug=slug)
+            if banco is None:
+                return Response("Banco no existe", status.HTTP_404_NOT_FOUND)
+            # request.data['banco'] = banco.pk
+            # request.data['usuario'] = request.user
+            serializer = CalificacionBancoSerializer(data=request.data,
+                                                     context={'banco': banco, 'usuario': request.user})
+
+            if serializer.is_valid():
+                calificacion = serializer.save()
+                return Response(serializer.data)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CalificacionBancoViewSet(viewsets.ModelViewSet):
