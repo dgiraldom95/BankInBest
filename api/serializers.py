@@ -24,7 +24,7 @@ class BancoSerializer(serializers.ModelSerializer):
         return ret
 
 
-class ProductoBancarioSerializer(serializers.ModelSerializer):
+class ProductoBancarioSerializer(serializers.HyperlinkedModelSerializer):
     banco = BancoSerializer(read_only=True)
 
     class Meta:

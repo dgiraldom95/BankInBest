@@ -5,6 +5,7 @@ import datetime
 
 # Create your models here.
 from django.db.models import F
+from django.template.defaultfilters import slugify
 
 
 class ProductoBancario(models.Model):
@@ -111,6 +112,9 @@ class UserManager(BaseUserManager):
         if 'ciudad' in kwargs:
             ciudad = kwargs['ciudad']
 
+        slug = email.replace('.', '_')
+        slug = slugify(slug)
+
         user = self.model(
             email=self.normalize_email(email),
             nombre=nombre,
@@ -118,17 +122,19 @@ class UserManager(BaseUserManager):
             telefono=telefono,
             fecha_nacimiento=fecha_nacimiento,
             ciudad=ciudad,
+            slug=slug
         )
         user.set_password(password)
         user.save(using=self._db)
         return user
 
     def create_staffuser(self, email, password):
+
         user = self.create_user(
             email,
             password=password,
         )
-        user.staff = True
+        user.is_staff = True
         user.save(using=self._db)
         return user
 
@@ -137,8 +143,8 @@ class UserManager(BaseUserManager):
             email,
             password=password,
         )
-        user.staff = True
-        user.admin = True
+        user.is_staff = True
+        user.is_admin = True
         user.save(using=self._db)
         return user
 
@@ -151,6 +157,9 @@ class User(AbstractBaseUser):
     telefono = models.CharField(max_length=20, null=True)
     fecha_nacimiento = models.DateField(null=True)
     ciudad = models.CharField(max_length=50, null=True)
+    is_staff = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
+    slug = models.SlugField(unique=True)
 
     USERNAME_FIELD = 'email'
 

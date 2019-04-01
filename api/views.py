@@ -6,6 +6,7 @@ from api.models import *
 from rest_framework.decorators import action
 import datetime
 from django.db.models import prefetch_related_objects
+import api.permissions
 
 
 class CDTViewSet(viewsets.ModelViewSet):
@@ -144,5 +145,5 @@ class DatosRegistroViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (permissions.AllowAny,)
-
+    permission_classes = (api.permissions.UsernamePermission,)
+    lookup_field = 'slug'
