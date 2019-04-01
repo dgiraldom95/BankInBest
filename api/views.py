@@ -1,5 +1,6 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from api.serializers import *
 from api.models import *
@@ -158,3 +159,11 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = (api.permissions.UsernamePermission,)
     lookup_field = 'slug'
+
+class Logout(APIView):
+    def get(self, request, format=None):
+        if not request.user.is_authenticated:
+            return Response("Not logged in", status.HTTP_400_BAD_REQUEST)
+        else:
+            request.user.auth_token.delete()
+            return Response(status=status.HTTP_200_OK)

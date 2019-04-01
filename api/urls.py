@@ -13,5 +13,6 @@ router.register(r'usuarios', views.UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('token-auth/', authtoken_views.obtain_auth_token, name='api-token-auth')
+    path('token-auth/', authtoken_views.obtain_auth_token, name='api-token-auth'),
+    path('logout/', views.Logout.as_view())
 ]
