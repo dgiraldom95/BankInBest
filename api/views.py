@@ -23,30 +23,31 @@ class CDTViewSet(viewsets.ModelViewSet):
         if 'monto' in params and 'plazo' in params:
             monto = params['monto']
             plazo = params['plazo']
-            fecha = datetime.datetime.today().strftime('%Y-%m-%d')
 
-            sql = """ SELECT api_cdt.id, api_cdt.plazo_min_dias, api_cdt.tasa, api_cdt.monto, api_cdt.monto_minimo, api_cdt.producto_bancario_id
-                        FROM api_cdt,  
-                                api_productobancario productobancario,
-                                (SELECT prod.banco_id banco, max(cdt.tasa) tasa
-                                    FROM api_cdt cdt,
-                                        api_productobancario prod
-                                    WHERE (
-                                     (cdt.monto_minimo <= %s OR cdt.monto_minimo IS NULL)
-                                       AND (cdt.monto <= %s OR monto IS NULL)
-                                       AND (cdt.producto_bancario_id = prod.id)
-                                       AND (cdt.plazo_min_dias <= %s)
-                                       AND (prod.fecha = %s)
-                                        )
-                                    GROUP BY prod.banco_id
-                                ) maxTasa
-                        WHERE api_cdt.tasa = maxTasa.tasa
-                           AND api_cdt.producto_bancario_id = productobancario.id
-                           AND productobancario.banco_id = maxTasa.banco
-                        ORDER BY api_cdt.tasa DESC;
+            sql = """ WITH cdtsCand AS (SELECT api_productobancario.banco_id banco, cdtsPosibles.id idcdt, *
+                                          FROM api_productobancario,
+                                               (SELECT banco_id, max(fecha) fecha FROM api_productobancario GROUP BY banco_id) ultimaFecha,
+                                               (SELECT *
+                                                FROM api_cdt
+                                                WHERE (api_cdt.monto_minimo <= %s or monto_minimo IS NULL)
+                                                  AND (api_cdt.monto <= %s or api_cdt.monto IS NULL)
+                                                  AND (api_cdt.plazo_min_dias <= %s or api_cdt.plazo_min_dias IS NULL)) cdtsPosibles
+                                          WHERE api_productobancario.banco_id = ultimaFecha.banco_id
+                                            AND api_productobancario.fecha = ultimaFecha.fecha
+                                            AND api_productobancario.id = cdtsPosibles.producto_bancario_id)
+                    SELECT cdtsCand.idcdt id,
+                           cdtsCand.producto_bancario_id,
+                           cdtsCand.plazo_min_dias,
+                           cdtsCand.tasa,
+                           cdtsCand.monto_minimo,
+                           cdtsCand.monto
+                    FROM cdtsCand,
+                         (SELECT cdtsCand.banco, max(tasa) tasa FROM cdtsCand GROUP BY cdtsCand.banco) maxTasas
+                    WHERE cdtsCand.tasa = maxTasas.tasa
+                      AND cdtsCand.banco = maxTasas.banco;
                  """
 
-            query = CDT.objects.raw(sql, params=[monto, monto, plazo, fecha])
+            query = CDT.objects.raw(sql, params=[monto, monto, plazo])
             prefetch_related_objects(query, 'producto_bancario')
             prefetch_related_objects(query, 'producto_bancario__banco')
 
@@ -159,6 +160,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = (api.permissions.UsernamePermission,)
     lookup_field = 'slug'
+
 
 class Logout(APIView):
     def get(self, request, format=None):
