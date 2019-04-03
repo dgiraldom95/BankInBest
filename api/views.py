@@ -44,7 +44,8 @@ class CDTViewSet(viewsets.ModelViewSet):
                     FROM cdtsCand,
                          (SELECT cdtsCand.banco, max(tasa) tasa FROM cdtsCand GROUP BY cdtsCand.banco) maxTasas
                     WHERE cdtsCand.tasa = maxTasas.tasa
-                      AND cdtsCand.banco = maxTasas.banco;
+                      AND cdtsCand.banco = maxTasas.banco
+                    ORDER BY cdtsCand.tasa DESC;
                  """
 
             query = CDT.objects.raw(sql, params=[monto, monto, plazo])
