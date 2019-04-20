@@ -162,6 +162,19 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (api.permissions.UsernamePermission,)
     lookup_field = 'slug'
 
+    @action(detail=False)
+    def calificaciones(self, request, slug=None):
+        usuario = request.user
+        queryset = CalificacionBanco.objects.filter(usuario=usuario.pk)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = CalificacionBancoSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = CalificacionBancoSerializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 class Logout(APIView):
     def get(self, request, format=None):

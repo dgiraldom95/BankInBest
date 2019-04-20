@@ -38,17 +38,18 @@ class CDTSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CDT
-        fields = ('id', 'plazo_min_dias', 'tasa', 'monto_minimo', 'banco', 'producto_bancario')
+        fields = ('id', 'plazo_min_dias', 'tasa', 'monto', 'monto_minimo', 'banco', 'producto_bancario')
 
     def create(self, validated_data):
         banco = validated_data.get('banco')
         plazoMinDias = validated_data.get('plazo_min_dias')
         tasa = validated_data.get('tasa')
         montoMinimo = validated_data.get('monto_minimo')
+        monto = validated_data.get('monto')
 
         producto = ProductoBancario.objects.create(banco_id=banco)
         cdt = CDT.objects.create(plazo_min_dias=plazoMinDias, tasa=tasa, monto_minimo=montoMinimo,
-                                 producto_bancario=producto)
+                                 producto_bancario=producto, monto=monto)
         return cdt
 
 
