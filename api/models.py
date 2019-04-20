@@ -48,6 +48,7 @@ class Banco(models.Model):
     logoGrande = models.URLField(null=True)
     slug = models.SlugField(default=nombre, unique=True)
     puntaje_total = models.FloatField(default=0)
+    puntaje_bankinbest = models.FloatField(default=0)
     numero_calificaciones = models.BigIntegerField(default=0)
 
     @property

@@ -10,7 +10,7 @@ class BancoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Banco
-        fields = ('nombre', 'calificacion_promedio', 'slug', 'logoCuadrado', 'logoGrande')
+        fields = ('nombre', 'calificacion_promedio', 'puntaje_bankinbest', 'slug', 'logoCuadrado', 'logoGrande')
         read_only_fields = ('slug',)
 
     def nameToSlug(self, name):
