@@ -4,9 +4,11 @@ from rest_framework.views import APIView
 
 from api.serializers import *
 from api.models import *
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 import datetime
 from django.db.models import prefetch_related_objects
+from django.http import HttpResponse
+import json
 import api.permissions
 
 
@@ -126,6 +128,67 @@ class BancoViewSet(viewsets.ModelViewSet):
                 return Response(serializer.data)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ArbolDecisionViewSet(viewsets.ModelViewSet):
+    @api_view(['POST'])
+    def arbol(self, requests):
+        #IZQUIERDA = "no", DERECHA = "si"
+        preguntas = {}
+        preguntas['-'] = "¿Qué tanto riesgo planea tomar? a mayor riesgo, mayor recompensa!!"
+        preguntas['-1'] = "¿Quisieras una persona o un banco como tu intermediario?"
+        preguntas['-0'] = "¿Estas dispuesto a no retirar tu dinero por un tiempo?"
+        preguntas['-0-0'] = "¿Quieres meter tu dinero en el estado o en un banco?"
+
+        hojas = {}
+        hojas['-1-1'] = "Fondo de Inversión Colectiva"
+        hojas['-1-0'] = "Bolsa"
+        hojas['-0-1'] = "Cuenta de ahorros"
+        hojas['-0-0-1'] = "CDT"
+        hojas['-0-0-0'] = "Bonos del estado"
+
+        respuestas = {}
+        respuestas['-0'] = "Bajo/nulo"
+        respuestas['-1'] = "Medio/alto"
+        respuestas['-1-0'] = "Corredor de bolsa"
+        respuestas['-1-1'] = "Entidad financiera"
+        respuestas['-0-1'] = "No"
+        respuestas['-0-0'] = "Si"
+        respuestas['-0-0-1'] = "Banco"
+        respuestas['-0-0-0'] = "Estado"
+
+        if requests.method == 'POST':
+            rta = {}
+            camino = requests.data["camino"]
+            if camino == "":
+                rta['pregunta'] = preguntas['-']
+                rta['respuestas'] = [respuestas['-0'], respuestas['-1']]
+
+            #SE VA POR LA RAMA DERECHA
+            elif camino == "1":
+                rta['pregunta'] = preguntas['-1']
+                rta['respuestas'] = [respuestas['-1-0'], respuestas['-1-1']]
+            elif camino == "1-1":
+                rta['producto'] = hojas['-1-1']
+            elif camino == "1-0":
+                rta['producto'] = hojas['-1-0']
+
+            #SE VA POR LA RAMA IZQUIERDA
+            elif camino == "0":
+                rta['pregunta'] = preguntas['-0']
+                rta['respuestas'] = [respuestas['-0-0'], respuestas['-0-1']]
+            elif camino == "0-1":
+                rta['producto'] = hojas['-0-1']
+
+            #SE VA POR LA RAMA IZQUIERDA
+            elif camino == "0-0":
+                rta['pregunta'] = preguntas['-0-0']
+                rta['respuestas'] = [respuestas['-0-0-0'], respuestas['-0-0-1']]
+            elif camino == "0-0-0":
+                rta['producto'] = hojas['-0-0-0']
+            elif camino == "0-0-1":
+                rta['producto'] = hojas['-0-0-1']
+
+            return HttpResponse(json.dumps(rta))
 
 
 class CalificacionBancoViewSet(viewsets.ModelViewSet):
