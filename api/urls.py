@@ -10,10 +10,10 @@ router.register(r'calificaciones-bancos', views.CalificacionBancoViewSet)
 router.register(r'datos-registro', views.DatosRegistroViewSet)
 router.register(r'bancos', views.BancoViewSet)
 router.register(r'usuarios', views.UserViewSet)
-router.register(r'arbol', views.ArbolDecisionViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
     path('token-auth/', authtoken_views.obtain_auth_token, name='api-token-auth'),
-    path('logout/', views.Logout.as_view())
+    path('logout/', views.Logout.as_view()),
+    path('arbol/', views.ArbolDecisionViewSet.as_view())
 ]

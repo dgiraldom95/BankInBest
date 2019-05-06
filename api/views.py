@@ -129,9 +129,9 @@ class BancoViewSet(viewsets.ModelViewSet):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class ArbolDecisionViewSet(viewsets.ModelViewSet):
-    @api_view(['POST'])
-    def arbol(self, requests):
+class ArbolDecisionViewSet(APIView):
+    permission_classes = (permissions.AllowAny,)
+    def post(self, request,format=None):
         #IZQUIERDA = "no", DERECHA = "si"
         preguntas = {}
         preguntas['-'] = "¿Qué tanto riesgo planea tomar? a mayor riesgo, mayor recompensa!!"
@@ -141,7 +141,7 @@ class ArbolDecisionViewSet(viewsets.ModelViewSet):
 
         hojas = {}
         hojas['-1-1'] = "Fondo de Inversión Colectiva"
-        hojas['-1-0'] = "Bolsa"
+        hojas['-1-0'] = "Acciones"
         hojas['-0-1'] = "Cuenta de ahorros"
         hojas['-0-0-1'] = "CDT"
         hojas['-0-0-0'] = "Bonos del estado"
@@ -156,9 +156,9 @@ class ArbolDecisionViewSet(viewsets.ModelViewSet):
         respuestas['-0-0-1'] = "Banco"
         respuestas['-0-0-0'] = "Estado"
 
-        if requests.method == 'POST':
+        if not request.user.is_authenticated:
             rta = {}
-            camino = requests.data["camino"]
+            camino = request.data["camino"]
             if camino == "":
                 rta['pregunta'] = preguntas['-']
                 rta['respuestas'] = [respuestas['-0'], respuestas['-1']]
